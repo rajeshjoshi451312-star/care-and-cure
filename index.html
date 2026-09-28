@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Toolbox</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div id="home">
+  <h1>Toolbox</h1>
+  <div id="grid">
+    <button class="tile" data-app="cal" style="--c:#d63b45"><i>📅</i>Calendar</button>
+    <button class="tile" data-app="todo" style="--c:#23855a"><i>✅</i>To-do</button>
+    <button class="tile" data-app="time" style="--c:#b85c08"><i>⏱️</i>Stopwatch</button>
+    <button class="tile" data-app="note" style="--c:#6e4ee0"><i>📝</i>Notes</button>
+  </div>
+</div>
+
+<section class="win" id="w-cal" style="--c:#d63b45" hidden aria-label="Calendar">
+  <div class="bar"><h2>Calendar 2026</h2><button data-close>Close</button></div>
+  <div class="body">
+    <div class="cn"><button class="b" id="cp" aria-label="Previous month">‹</button><select id="cm" aria-label="Month"></select><button class="b" id="cx" aria-label="Next month">›</button></div>
+    <div id="cal"></div>
+    <p class="stat" id="cs"></p>
+  </div>
+</section>
+
+<section class="win" id="w-todo" style="--c:#23855a" hidden aria-label="To-do">
+  <div class="bar"><h2>To-do</h2><button data-close>Close</button></div>
+  <div class="body">
+    <div class="row"><input id="ti" placeholder="Add a task" aria-label="New task"><button class="b p" id="ta">Add</button></div>
+    <ul id="tl"></ul>
+    <p class="stat" id="ts">No tasks yet. Add one above.</p>
+  </div>
+</section>
+
+<section class="win" id="w-time" style="--c:#b85c08" hidden aria-label="Stopwatch">
+  <div class="bar"><h2>Stopwatch</h2><button data-close>Close</button></div>
+  <div class="body">
+    <div id="time">00:00.00</div>
+    <div class="row c"><button class="b p" id="sg">Start</button><button class="b" id="sr">Reset</button></div>
+  </div>
+</section>
+
+<section class="win" id="w-note" style="--c:#6e4ee0" hidden aria-label="Notes">
+  <div class="bar"><h2>Notes</h2><button data-close>Close</button></div>
+  <div class="body">
+    <textarea id="nt" rows="10" placeholder="Start typing..." aria-label="Notes"></textarea>
+    <p class="stat" id="ns">0 words, 0 characters</p>
+    <div class="row"><button class="b" id="nu">Make uppercase</button><button class="b" id="nc">Clear</button></div>
+  </div>
+</section>
+
+
+  <script src="js/calendar.js"></script>
+  <script src="js/todo.js"></script>
+  <script src="js/stopwatch.js"></script>
+  <script src="js/notes.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

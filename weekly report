@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CARECOUNT – Your Week sidebar</title>
+<style>
+/* ============ 1. TOKENS – change these to match your existing CARECOUNT theme ============ */
+:root{
+  --navy:#1F2A44; --navy-soft:#5B6580; --cream:#FAF6EF; --card:#FFFFFF;
+  --wine:#7A2E3B; --wine-tint:#F5E9EB; --line:#E8E1D5;
+  --font:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-display:Georgia,"Times New Roman",serif;
+  --shadow:0 1px 2px rgba(31,42,68,.05),0 4px 14px rgba(31,42,68,.05);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--navy);font:14px/1.45 var(--font)}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--wine);outline-offset:2px}
+
+/* ============ 2. SIDEBAR STYLES (keep) ============ */
+.yw{display:flex;flex-direction:column;gap:12px;width:100%}
+.yw h2{font:600 20px var(--font-display);margin:2px 4px 0}
+.yw-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+.yw-card h3{margin:0;font:600 14px var(--font);display:flex;align-items:center;gap:8px}
+.yw-card h3 svg{width:16px;height:16px;stroke:var(--wine);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.yw-sub{margin:2px 0 10px;color:var(--navy-soft);font-size:12.5px}
+.yw-big{font:600 26px var(--font-display);margin:8px 0 2px}
+.yw-delta{color:var(--navy-soft);font-size:12.5px;margin:0 0 10px}
+.yw-rows{display:grid;gap:6px;margin:0 0 10px}
+.yw-row{display:flex;justify-content:space-between;font-size:13px}
+.yw-row span:first-child{color:var(--navy-soft)}
+.yw-link{background:none;border:0;padding:0;color:var(--wine);font-weight:600;font-size:13px}
+.yw-link:hover{text-decoration:underline}
+.yw-moods{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.yw-mood{display:flex;align-items:center;gap:6px;padding:8px;border:1px solid var(--line);border-radius:12px;background:var(--cream);font-size:12.5px;transition:transform .15s,border-color .15s,background .15s}
+.yw-mood:hover{transform:translateY(-1px);border-color:var(--wine)}
+.yw-mood[aria-pressed=true]{background:var(--wine-tint);border-color:var(--wine);color:var(--wine);font-weight:600}
+.yw-mood i{font-style:normal;font-size:16px}
+.yw-note{margin:10px 0 0;font-size:12.5px;color:var(--navy-soft)}
+.yw-saved{color:var(--wine);font-weight:600}
+.yw-up{list-style:none;margin:8px 0 10px;padding:0;display:grid;gap:8px}
+.yw-up li{padding-left:10px;border-left:3px solid var(--wine-tint)}
+.yw-up b{display:block;font-weight:600;font-size:13.5px}
+.yw-up small{color:var(--navy-soft);font-size:12px}
+.yw-empty{color:var(--navy-soft);font-size:12.5px;margin:8px 0 10px}
+.yw-btn{width:100%;padding:8px 10px;border:1px solid var(--wine);background:transparent;color:var(--wine);border-radius:10px;font-weight:600;font-size:13px;transition:background .15s,color .15s}
+.yw-btn:hover{background:var(--wine);color:#fff}
+.yw-opts{display:grid;gap:6px;margin-top:8px}
+.yw-opt{text-align:left;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--cream);transition:border-color .15s,background .15s}
+.yw-opt:hover{border-color:var(--wine)}
+.yw-opt[aria-pressed=true]{background:var(--wine-tint);border-color:var(--wine);color:var(--wine);font-weight:600}
+.yw-foot{text-align:center;padding:2px 0 4px}
+
+/* dialogs */
+dialog{border:1px solid var(--line);border-radius:16px;padding:18px;max-width:420px;width:calc(100% - 32px);background:var(--card);color:var(--navy);box-shadow:0 20px 50px rgba(31,42,68,.25)}
+dialog::backdrop{background:rgba(31,42,68,.35)}
+dialog h3{font:600 18px var(--font-display);margin:0 0 10px}
+dialog label{display:grid;gap:4px;font-size:12.5px;color:var(--navy-soft);margin-bottom:10px}
+dialog input,dialog select{padding:8px;border:1px solid var(--line);border-radius:8px;font:inherit;color:var(--navy);background:#fff}
+.dlg-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
+.dlg-actions button{padding:8px 14px;border-radius:10px;border:1px solid var(--line);background:#fff}
+.dlg-actions .primary{background:var(--wine);border-color:var(--wine);color:#fff}
+.hist{list-style:none;margin:0 0 10px;padding:0;max-height:50vh;overflow:auto}
+.hist li{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line)}
+.bar{height:6px;background:var(--wine-tint);border-radius:4px;margin:3px 0 8px}
+.bar i{display:block;height:100%;background:var(--wine);border-radius:4px}
+
+/* ============ 3. DEMO HOST (delete when merging into your dashboard) ============ */
+.demo{max-width:1180px;margin:0 auto;padding:20px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start}
+.demo header{grid-column:1/-1}
+.demo header h1{margin:0;font:600 22px var(--font-display);letter-spacing:.04em}
+.demo header p{margin:2px 0 0;color:var(--navy-soft);font-size:12.5px}
+.tform{display:grid;grid-template-columns:2fr 1.4fr 1fr 1.2fr auto;gap:6px;margin:10px 0}
+.tform input,.tform select{padding:8px;border:1px solid var(--line);border-radius:8px;font:inherit;min-width:0}
+.tform button{padding:8px 12px;border:0;border-radius:8px;background:var(--navy);color:#fff}
+.trow{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--line)}
+.trow .t{flex:1;min-width:0}.trow small{color:var(--navy-soft)}
+.trow button{border:0;background:none;color:var(--navy-soft);font-size:12px;text-decoration:underline}
+@media (max-width:900px){
+  .demo{grid-template-columns:1fr}          /* sidebar stacks below main content */
+  .tform{grid-template-columns:1fr 1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- ============ DEMO PAGE: your real dashboard goes in <main>. Only <aside id="yourWeek"> is the sidebar. ============ -->
+<div class="demo">
+  <header><h1>CARECOUNT</h1><p>Demo dashboard – log a task and watch “Your Week” update.</p></header>
+
+  <main class="yw-card" id="demoMain"></main>
+
+  <aside id="yourWeek" class="yw" aria-label="Your Week"></aside>
+</div>
+
+<dialog id="ccDlg"></dialog>
+
+<script>
+/* =====================================================================
+   CARECOUNT DATA LAYER
+   Replace the get/set below with your real backend (Firebase, Supabase,
+   API...). Call notify() after any change so the sidebar re-renders.
+   Shapes:
+     tasks     [{id,title,category,minutes,date:'YYYY-MM-DD',done:boolean}]
+     recurring [{id,title,minutes,weekday:0-6 (0=Mon)}]
+     checkins  {'YYYY-MM-DD':'good'|'okay'|'tired'|'stressed'|'overwhelmed'}
+     reflections {'<Monday date>':'Cooking'}
+   ===================================================================== */
+const Store={
+  get(k,d){try{const v=JSON.parse(localStorage.getItem('cc:'+k));return v==null?d:v}catch(e){return d}},
+  set(k,v){try{localStorage.setItem('cc:'+k,JSON.stringify(v))}catch(e){} notify()}
+};
+const notify=()=>window.dispatchEvent(new Event('carecount:change'));
+
+/* Where the two buttons go. Point these at your real pages
+   (e.g. '/reports/weekly?week=' + wk). Default uses hash routes handled below. */
+const Routes={
+  weeklyReport:wk=>`#/reports/weekly?week=${wk}`,
+  insights:wk=>`#/insights?week=${wk}`
+};
+
+/* ---------- helpers ---------- */
+const $=(s,r=document)=>r.querySelector(s);
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse=s=>{const[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)};
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const weekStart=d=>addDays(new Date(d.getFullYear(),d.getMonth(),d.getDate()),-((d.getDay()+6)%7));
+const fmt=m=>{const h=Math.floor(m/60),r=m%60;return h?`${h}h${r?` ${r}m`:''}`:`${r}m`};
+const short=m=>m<60?`${m} min`:fmt(m);
+const DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const CATS=['Caregiving','Planning & coordination','Cooking','Cleaning','Laundry','Errands & shopping','Other'];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const MOODS=[['good','😊','Good'],['okay','🙂','Okay'],['tired','😐','Tired'],['stressed','😟','Stressed'],['overwhelmed','😣','Overwhelmed']];
+
+function stats(tasks,ws){
+  const a=iso(ws),b=iso(addDays(ws,7));
+  const list=tasks.filter(t=>t.date>=a&&t.date<b);
+  const by={};list.forEach(t=>by[t.category]=(by[t.category]||0)+t.minutes);
+  return{list,by,total:list.reduce((n,t)=>n+t.minutes,0),done:list.filter(t=>t.done).length,
+    care:by['Caregiving']||0,plan:by['Planning & coordination']||0};
+}
+function comingUp(rec){
+  const today=new Date();today.setHours(0,0,0,0);const todayIdx=(today.getDay()+6)%7;
+  return rec.map(r=>{const gap=(r.weekday-todayIdx+7)%7;return{...r,gap}}).sort((a,b)=>a.gap-b.gap).slice(0,3)
+    .map(r=>({...r,when:r.gap===0?'Today':r.gap===1?'Tomorrow':DAYS[r.weekday]}));
+}
+
+/* ---------- sidebar render ---------- */
+const ic={
+  chart:'<svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+  heart:'<svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.600-7 10-7 10z"/></svg>',
+  cal:'<svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4M16 3v4M4 10h16"/></svg>',
+  pen:'<svg viewBox="0 0 24 24"><path d="M4 20l4-1L19 8l-3-3L5 16l-1 4z"/></svg>'
+};
+let flash='';const side=$('#yourWeek');
+
+function render(){
+  const T=Store.get('tasks',[]),R=Store.get('recurring',[]),C=Store.get('checkins',{}),F=Store.get('reflections',{});
+  const ws=weekStart(new Date()),wk=iso(ws),s=stats(T,ws),p=stats(T,addDays(ws,-7));
+  const mood=C[iso(new Date())],up=comingUp(R);
+  const top=Object.entries(s.by).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>e[0]);
+  const picked=F[wk];
+  let delta='';
+  if(p.total>0&&s.total>0){const d=s.total-p.total;delta=d===0?'Same as last week':`${d>0?'↑':'↓'} ${fmt(Math.abs(d))} from last week`}
+
+  side.innerHTML=`
+  <h2>Your Week</h2>
+
+  <section class="yw-card"><h3>${ic.chart}This week at a glance</h3>
+    <p class="yw-big">${fmt(s.total)}</p>
+    <p class="yw-delta">${delta||'Household &amp; care work logged'}${delta?' · logged this week':''}</p>
+    <div class="yw-rows">
+      <div class="yw-row"><span>Tasks completed</span><b>${s.done}</b></div>
+      <div class="yw-row"><span>Caregiving</span><b>${fmt(s.care)}</b></div>
+      <div class="yw-row"><span>Planning &amp; coordination</span><b>${fmt(s.plan)}</b></div>
+    </div>
+    <button class="yw-link" data-act="report">View weekly report →</button>
+  </section>
+
+  <section class="yw-card"><h3>${ic.heart}How are you feeling today?</h3>
+    <p class="yw-sub">A quick check-in for yourself.</p>
+    <div class="yw-moods" role="group" aria-label="Today's check-in">
+      ${MOODS.map(([k,e,l])=>`<button class="yw-mood" data-act="mood" data-v="${k}" aria-pressed="${mood===k}"><i>${e}</i>${l}</button>`).join('')}
+    </div>
+    ${flash?`<p class="yw-note" role="status"><span class="yw-saved">${flash==='saved'||flash==='kind'?'Check-in saved.':''}</span>${flash==='kind'?' Thanks for checking in. Remember to make some space for yourself today.':''}</p>`:''}
+    <p class="yw-note"><button class="yw-link" data-act="history">View wellness history →</button></p>
+  </section>
+
+  <section class="yw-card"><h3>${ic.cal}Coming up</h3>
+    ${up.length?`<ul class="yw-up">${up.map(r=>`<li><b>${esc(r.title)}</b><small>${r.when} • ${short(r.minutes)}</small></li>`).join('')}</ul>`
+      :`<p class="yw-empty">No recurring responsibilities added yet.</p>`}
+    <button class="yw-btn" data-act="addrec">Add recurring task</button>
+  </section>
+
+  <section class="yw-card"><h3>${ic.pen}Weekly reflection</h3>
+    <p class="yw-sub" style="margin-bottom:0">What took the most of your time this week?</p>
+    ${top.length?`<div class="yw-opts">${top.map(c=>`<button class="yw-opt" data-act="reflect" data-v="${esc(c)}" aria-pressed="${picked===c}">${esc(c)}</button>`).join('')}</div>`
+      :`<p class="yw-empty">Log a few tasks to see options here.</p>`}
+    ${picked?`<p class="yw-note" role="status">Noted. You can explore your workload in Insights.</p>`:''}
+  </section>
+
+  <div class="yw-foot"><button class="yw-link" data-act="insights">See all insights →</button></div>`;
+}
+
+/* ---------- dialog helper ---------- */
+const dlg=$('#ccDlg');
+function openDlg(html,onSubmit){
+  dlg.innerHTML=html;
+  const f=$('form',dlg);
+  if(f)f.addEventListener('submit',e=>{e.preventDefault();if(e.submitter&&e.submitter.value==='cancel'){dlg.close();return}onSubmit&&onSubmit(new FormData(f));dlg.close()});
+  const x=$('[data-close]',dlg);if(x)x.onclick=()=>dlg.close();
+  dlg.showModal();
+}
+
+/* ---------- sidebar actions ---------- */
+side.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;
+  const wk=iso(weekStart(new Date())),v=b.dataset.v;
+  switch(b.dataset.act){
+    case 'report':location.hash=Routes.weeklyReport(wk);break;
+    case 'insights':location.hash=Routes.insights(wk);break;
+    case 'mood':{
+      const C=Store.get('checkins',{});C[iso(new Date())]=v;
+      flash=['tired','stressed','overwhelmed'].includes(v)?'kind':'saved';
+      Store.set('checkins',C);break}
+    case 'history':{
+      const C=Store.get('checkins',{}),keys=Object.keys(C).sort().reverse().slice(0,30);
+      openDlg(`<h3>Wellness history</h3>${keys.length?`<ul class="hist">${keys.map(k=>{const m=MOODS.find(x=>x[0]===C[k]);
+        return`<li><span>${parse(k).toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})}</span><span>${m[1]} ${m[2]}</span></li>`}).join('')}</ul>`
+        :'<p class="yw-empty">No check-ins yet.</p>'}<div class="dlg-actions"><button data-close>Close</button></div>`);break}
+    case 'addrec':
+      openDlg(`<h3>Add recurring task</h3><form>
+        <label>Task<input name="title" required maxlength="60" placeholder="e.g. Grocery shopping"></label>
+        <label>Usual time (minutes)<input name="minutes" type="number" min="5" step="5" value="30" required></label>
+        <label>Repeats every<select name="weekday">${DAYS.map((d,i)=>`<option value="${i}">${d}</option>`).join('')}</select></label>
+        <div class="dlg-actions"><button value="cancel">Cancel</button><button class="primary" value="save">Save</button></div></form>`,
+        fd=>{const R=Store.get('recurring',[]);
+          R.push({id:Date.now(),title:fd.get('title').trim(),minutes:+fd.get('minutes'),weekday:+fd.get('weekday')});
+          Store.set('recurring',R)});break;
+    case 'reflect':{const F=Store.get('reflections',{});F[wk]=v;Store.set('reflections',F);break}
+  }
+});
+
+/* ---------- hash routes → weekly report / insights (swap for your real pages) ---------- */
+function route(){
+  const [path,q]=location.hash.slice(1).split('?');if(!path)return;
+  const T=Store.get('tasks',[]);
+  const ws=weekStart(parse(new URLSearchParams(q).get('week')||iso(new Date())));
+  const close=`<div class="dlg-actions"><button data-close>Close</button></div>`;
+  const bars=(by,tot)=>Object.entries(by).sort((a,b)=>b[1]-a[1]).map(([c,m])=>
+    `<div class="yw-row"><span>${esc(c)}</span><b>${fmt(m)}</b></div><div class="bar"><i style="width:${tot?m/tot*100:0}%"></i></div>`).join('');
+  if(path==='/reports/weekly'){
+    const s=stats(T,ws);
+    openDlg(`<h3>Weekly report</h3><p class="yw-sub">Week of ${ws.toLocaleDateString(undefined,{month:'short',day:'numeric'})}</p>
+      <div class="yw-rows"><div class="yw-row"><span>Total logged</span><b>${fmt(s.total)}</b></div><div class="yw-row"><span>Tasks completed</span><b>${s.done} of ${s.list.length}</b></div></div>
+      ${bars(s.by,s.total)||'<p class="yw-empty">No tasks logged this week.</p>'}${close}`);
+  }else if(path==='/insights'){
+    const weeks=[0,1,2,3].map(i=>{const w=addDays(ws,-7*i);return[w,stats(T,w)]});
+    const max=Math.max(1,...weeks.map(w=>w[1].total));
+    openDlg(`<h3>Insights</h3><p class="yw-sub">Time logged, last 4 weeks</p>
+      ${weeks.map(([w,s])=>`<div class="yw-row"><span>Week of ${w.toLocaleDateString(undefined,{month:'short',day:'numeric'})}</span><b>${fmt(s.total)}</b></div><div class="bar"><i style="width:${s.total/max*100}%"></i></div>`).join('')}
+      <p class="yw-sub" style="margin-top:8px">This week by category</p>${bars(weeks[0][1].by,weeks[0][1].total)||'<p class="yw-empty">Nothing logged yet.</p>'}${close}`);
+  }
+  history.replaceState(null,'',location.pathname);
+}
+window.addEventListener('hashchange',route);
+dlg.addEventListener('close',()=>{dlg.innerHTML=''});
+
+/* ======================= DEMO HOST (delete when merging) ======================= */
+if(Store.get('tasks',null)===null){
+  const t=new Date(),ws=weekStart(t);
+  const mk=(d,title,category,minutes,done)=>({id:Math.random(),title,category,minutes,date:iso(addDays(ws,d)),done});
+  Store.set('tasks',[mk(0,'Cook dinner','Cooking',75,true),mk(0,'Mum’s appointment','Caregiving',120,true),mk(-3,'Laundry','Laundry',60,true),mk(-5,'School forms','Planning & coordination',45,true)]);
+  Store.set('recurring',[{id:1,title:'Grocery shopping',minutes:45,weekday:(t.getDay()+7)%7},{id:2,title:'Laundry',minutes:60,weekday:2},{id:3,title:'Family coordination',minutes:30,weekday:4}]);
+}
+function renderMain(){
+  const T=Store.get('tasks',[]).slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,8);
+  $('#demoMain').innerHTML=`<h3 style="margin:0;font:600 16px var(--font-display)">Log a task</h3>
+   <form class="tform" id="tf"><input name="title" placeholder="What did you do?" required>
+    <select name="category">${CATS.map(c=>`<option>${c}</option>`).join('')}</select>
+    <input name="minutes" type="number" min="5" step="5" value="30" required>
+    <input name="date" type="date" value="${iso(new Date())}" required><button>Add</button></form>
+   ${T.map(t=>`<div class="trow"><input type="checkbox" data-id="${t.id}" data-do="done" ${t.done?'checked':''} aria-label="Completed">
+     <div class="t"><b>${esc(t.title)}</b><br><small>${esc(t.category)} • ${short(t.minutes)} • ${t.date}</small></div>
+     <button data-id="${t.id}" data-do="edit">Edit</button><button data-id="${t.id}" data-do="del">Delete</button></div>`).join('')}`;
+}
+$('#demoMain').addEventListener('submit',e=>{
+  e.preventDefault();const f=new FormData(e.target),T=Store.get('tasks',[]);
+  T.push({id:Date.now(),title:f.get('title').trim(),category:f.get('category'),minutes:+f.get('minutes'),date:f.get('date'),done:false});
+  Store.set('tasks',T);
+});
+$('#demoMain').addEventListener('click',e=>{
+  const b=e.target.closest('[data-do]');if(!b||b.dataset.do==='done')return;
+  let T=Store.get('tasks',[]);const id=+b.dataset.id;
+  if(b.dataset.do==='del')T=T.filter(t=>t.id!==id);
+  else{const t=T.find(t=>t.id===id),m=prompt('Minutes spent',t.minutes);if(m&&+m>0)t.minutes=+m}
+  Store.set('tasks',T);
+});
+$('#demoMain').addEventListener('change',e=>{
+  if(e.target.dataset.do!=='done')return;
+  const T=Store.get('tasks',[]);T.find(t=>t.id===+e.target.dataset.id).done=e.target.checked;Store.set('tasks',T);
+});
+
+/* ---------- boot ---------- */
+window.addEventListener('carecount:change',()=>{render();renderMain()});
+render();renderMain();route();
+</script>
+</body>
+</html>
